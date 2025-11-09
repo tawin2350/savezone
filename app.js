@@ -210,7 +210,7 @@ function displayMessages(messages) {
             let readStatus = '';
             if (msg.sender === currentUser) {
                 readStatus = msg.read 
-                    ? '<span style="color: #4facfe; margin-left: 5px;">✓✓</span>' 
+                    ? '<span style="color: #04ed2aff; margin-left: 5px;">✓✓</span>' 
                     : '<span style="color: #94a3b8; margin-left: 5px;">✓</span>';
             }
             
