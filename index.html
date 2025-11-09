@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Save Zone - ❤️ Our Love Story</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="logo">💕 Save Zone</div>
+            <div class="nav-menu">
+                <button class="nav-btn active" data-section="home">
+                    <i class="fas fa-home"></i>
+                    <span>หน้าแรก</span>
+                </button>
+                <button class="nav-btn" data-section="chat">
+                    <i class="fas fa-comments"></i>
+                    <span>แชท</span>
+                </button>
+                <button class="nav-btn" data-section="feelings">
+                    <i class="fas fa-heart"></i>
+                    <span>ระบาย</span>
+                </button>
+                <button class="nav-btn" data-section="missing">
+                    <i class="fas fa-paper-plane"></i>
+                    <span>คิดถึง</span>
+                </button>
+                <button class="nav-btn" data-section="notes">
+                    <i class="fas fa-sticky-note"></i>
+                    <span>โน้ต</span>
+                </button>
+                <button class="nav-btn" data-section="period">
+                    <i class="fas fa-calendar-alt"></i>
+                    <span>ตกไข่</span>
+                </button>
+                <button class="nav-btn" data-section="settings">
+                    <i class="fas fa-cog"></i>
+                    <span>ตั้งค่า</span>
+                </button>
+            </div>
+            <div class="user-info">
+                <span id="currentUser"></span>
+                <button class="logout-btn" onclick="logout()">
+                    <i class="fas fa-sign-out-alt"></i>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Home Section -->
+    <section id="home" class="section active">
+        <div class="container">
+            <div class="anniversary-card">
+                <div class="hearts-animation">
+                    <span class="heart">❤️</span>
+                    <span class="heart">💕</span>
+                    <span class="heart">💖</span>
+                </div>
+                <h1 class="main-title">Third & Yimmy</h1>
+                <div class="anniversary-info">
+                    <div class="date-box">
+                        <i class="fas fa-calendar-heart"></i>
+                        <h2>วันครบรอบของเรา</h2>
+                        <p class="anniversary-date">2 ตุลาคม 2568</p>
+                    </div>
+                    <div class="counter-box">
+                        <h3>เราอยู่ด้วยกันมาแล้ว</h3>
+                        <div class="time-counter">
+                            <div class="time-unit">
+                                <span class="time-value" id="days">0</span>
+                                <span class="time-label">วัน</span>
+                            </div>
+                            <div class="time-unit">
+                                <span class="time-value" id="hours">0</span>
+                                <span class="time-label">ชั่วโมง</span>
+                            </div>
+                            <div class="time-unit">
+                                <span class="time-value" id="minutes">0</span>
+                                <span class="time-label">นาที</span>
+                            </div>
+                            <div class="time-unit">
+                                <span class="time-value" id="seconds">0</span>
+                                <span class="time-label">วินาที</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="monthly-anniversary">
+                        <h3>ครบรอบเดือนถัดไป</h3>
+                        <p class="next-anniversary" id="nextAnniversary"></p>
+                        <p class="countdown-text" id="countdownText"></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Chat Section -->
+    <section id="chat" class="section">
+        <div class="container">
+            <div class="chat-container">
+                <div class="chat-header">
+                    <h2><i class="fas fa-comments"></i> แชทคุยกัน</h2>
+                </div>
+                <div class="chat-messages" id="chatMessages"></div>
+                <div class="chat-input-container">
+                    <input type="text" id="chatInput" placeholder="พิมพ์ข้อความ..." class="chat-input">
+                    <button onclick="sendMessage()" class="send-btn">
+                        <i class="fas fa-paper-plane"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Feelings Section -->
+    <section id="feelings" class="section">
+        <div class="container">
+            <div class="feelings-container">
+                <div class="section-header">
+                    <h2><i class="fas fa-heart"></i> สิ่งที่อยากระบาย</h2>
+                </div>
+                <div class="feeling-input-box">
+                    <textarea id="feelingInput" placeholder="เขียนสิ่งที่อยากระบาย..." class="feeling-textarea"></textarea>
+                    <button onclick="saveFeelings()" class="save-btn">
+                        <i class="fas fa-save"></i> บันทึก
+                    </button>
+                </div>
+                <div class="feelings-list" id="feelingsList"></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Missing You Section -->
+    <section id="missing" class="section">
+        <div class="container">
+            <div class="missing-container">
+                <div class="section-header">
+                    <h2><i class="fas fa-paper-plane"></i> ส่งความคิดถึง</h2>
+                </div>
+                <div class="missing-input-box">
+                    <textarea id="missingInput" placeholder="เขียนข้อความคิดถึง..." class="missing-textarea"></textarea>
+                    <button onclick="sendMissing()" class="send-missing-btn">
+                        <i class="fas fa-heart"></i> ส่งความคิดถึง
+                    </button>
+                </div>
+                <div class="missing-list" id="missingList"></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Notes Section -->
+    <section id="notes" class="section">
+        <div class="container">
+            <div class="notes-container">
+                <div class="section-header">
+                    <h2><i class="fas fa-sticky-note"></i> บันทึกโน้ต</h2>
+                    <button onclick="createNote()" class="create-note-btn">
+                        <i class="fas fa-plus"></i> สร้างโน้ตใหม่
+                    </button>
+                </div>
+                <div class="notes-grid" id="notesGrid"></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Period Tracker & Calendar Section -->
+    <section id="period" class="section">
+        <div class="container">
+            <div class="calendar-container">
+                <div class="section-header">
+                    <h2><i class="fas fa-calendar-alt"></i> ปฏิทินและวันตกไข่</h2>
+                </div>
+                
+                <!-- Period Input -->
+                <div class="period-input-box">
+                    <label>วันแรกของเมนล่าสุด:</label>
+                    <input type="date" id="lastPeriodDate" class="date-input">
+                    <label>ระยะเวลาของรอบเมน (วัน):</label>
+                    <input type="number" id="cycleLength" value="28" min="21" max="35" class="cycle-input">
+                    <button onclick="calculatePeriod()" class="calculate-btn">
+                        <i class="fas fa-calculator"></i> คำนวณและแสดงในปฏิทิน
+                    </button>
+                </div>
+
+                <!-- Calendar Legend -->
+                <div class="calendar-legend">
+                    <div class="legend-item">
+                        <span class="legend-color period-day"></span>
+                        <span>วันเมน</span>
+                    </div>
+                    <div class="legend-item">
+                        <span class="legend-color ovulation-day"></span>
+                        <span>วันตกไข่</span>
+                    </div>
+                    <div class="legend-item">
+                        <span class="legend-color fertile-day"></span>
+                        <span>ช่วงมีโอกาสตั้งครรภ์</span>
+                    </div>
+                    <div class="legend-item">
+                        <span class="legend-color anniversary-day"></span>
+                        <span>วันครบรอบ (ทุกวันที่ 2)</span>
+                    </div>
+                    <div class="legend-item">
+                        <span class="legend-color has-note"></span>
+                        <span>มีโน้ต</span>
+                    </div>
+                </div>
+
+                <!-- Calendar Navigation -->
+                <div class="calendar-nav">
+                    <button onclick="previousMonth()" class="nav-month-btn">
+                        <i class="fas fa-chevron-left"></i>
+                    </button>
+                    <h3 id="currentMonthYear"></h3>
+                    <button onclick="nextMonth()" class="nav-month-btn">
+                        <i class="fas fa-chevron-right"></i>
+                    </button>
+                </div>
+
+                <!-- Calendar Grid -->
+                <div class="calendar-grid">
+                    <div class="calendar-weekdays">
+                        <div class="weekday">อา</div>
+                        <div class="weekday">จ</div>
+                        <div class="weekday">อ</div>
+                        <div class="weekday">พ</div>
+                        <div class="weekday">พฤ</div>
+                        <div class="weekday">ศ</div>
+                        <div class="weekday">ส</div>
+                    </div>
+                    <div class="calendar-days" id="calendarDays"></div>
+                </div>
+
+                <!-- Period Result Info -->
+                <div class="period-result" id="periodResult"></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Day Note Modal -->
+    <div id="dayNoteModal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal" onclick="closeDayNoteModal()">&times;</span>
+            <h3 id="modalDate"></h3>
+            <div class="modal-note-section">
+                <h4>โน้ตของวันนี้:</h4>
+                <div id="dayNotesList"></div>
+                <textarea id="newDayNote" placeholder="เพิ่มโน้ตสำหรับวันนี้..." rows="3"></textarea>
+                <button onclick="saveDayNote()" class="save-note-btn">
+                    <i class="fas fa-save"></i> บันทึกโน้ต
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Settings Section -->
+    <section id="settings" class="section">
+        <div class="container">
+            <div class="settings-container">
+                <div class="section-header">
+                    <h2><i class="fas fa-cog"></i> ตั้งค่า</h2>
+                </div>
+                <div class="settings-box">
+                    <h3>เปลี่ยนรหัสผ่าน</h3>
+                    <div class="password-change">
+                        <input type="password" id="currentPassword" placeholder="รหัสผ่านปัจจุบัน" class="password-input">
+                        <input type="password" id="newPassword" placeholder="รหัสผ่านใหม่" class="password-input">
+                        <input type="password" id="confirmPassword" placeholder="ยืนยันรหัสผ่านใหม่" class="password-input">
+                        <button onclick="changePassword()" class="change-password-btn">
+                            <i class="fas fa-key"></i> เปลี่ยนรหัสผ่าน
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Firebase SDKs -->
+    <script type="module">
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
+        import { getDatabase, ref, set, push, onValue, update, remove } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js';
+        
+        // Firebase Configuration - แทนที่ด้วย config ของคุณ
+        const firebaseConfig = {
+    apiKey: "AIzaSyDAA6qrKzolYGc_fwjb37fqMq-ETpaxmiI",
+    authDomain: "savezone-bad79.firebaseapp.com",
+    databaseURL: "https://savezone-bad79-default-rtdb.asia-southeast1.firebasedatabase.app",
+    projectId: "savezone-bad79",
+    storageBucket: "savezone-bad79.firebasestorage.app",
+    messagingSenderId: "211601887525",
+    appId: "1:211601887525:web:8f3267173b4d3211e9cacc",
+    measurementId: "G-PJ31C5D5CR"
+  };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const database = getDatabase(app);
+        
+        window.db = database;
+        window.dbRef = ref;
+        window.dbSet = set;
+        window.dbPush = push;
+        window.dbOnValue = onValue;
+        window.dbUpdate = update;
+        window.dbRemove = remove;
+    </script>
+    
+    <script src="app.js"></script>
+</body>
+</html>

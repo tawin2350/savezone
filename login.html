@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Save Zone</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body class="login-body">
+    <div class="login-container">
+        <div class="login-card">
+            <div class="hearts-floating">
+                <span class="floating-heart">❤️</span>
+                <span class="floating-heart">💕</span>
+                <span class="floating-heart">💖</span>
+                <span class="floating-heart">💗</span>
+                <span class="floating-heart">💝</span>
+            </div>
+            
+            <div class="login-header">
+                <h1 class="login-title">💕 Save Zone 💕</h1>
+                <p class="login-subtitle">ห้องส่วนตัวของเรา</p>
+            </div>
+            
+            <form id="loginForm" class="login-form">
+                <div class="form-group">
+                    <label for="username">ชื่อผู้ใช้</label>
+                    <select id="username" class="form-input" required>
+                        <option value="">เลือกชื่อ</option>
+                        <option value="third">Third</option>
+                        <option value="yimmy">Yimmy</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="password">รหัสผ่าน</label>
+                    <input type="password" id="password" class="form-input" placeholder="ใส่รหัสผ่าน" required>
+                </div>
+                
+                <div class="error-message" id="errorMessage"></div>
+                
+                <button type="submit" class="login-btn">
+                    <span>เข้าสู่ระบบ</span>
+                    <i class="fas fa-heart"></i>
+                </button>
+            </form>
+            
+            <div class="love-quote">
+                "Every love story is beautiful, but ours is my favorite" ❤️
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const users = {
+            third: { password: '1234', displayName: 'Third' },
+            yimmy: { password: '1234', displayName: 'Yimmy' }
+        };
+
+        // Check if already logged in
+        if (localStorage.getItem('loggedInUser')) {
+            window.location.href = 'index.html';
+        }
+
+        document.getElementById('loginForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            const errorMessage = document.getElementById('errorMessage');
+            
+            // Get custom password from localStorage or use default
+            const userPasswords = JSON.parse(localStorage.getItem('userPasswords') || '{}');
+            const correctPassword = userPasswords[username] || users[username]?.password;
+            
+            if (users[username] && password === correctPassword) {
+                localStorage.setItem('loggedInUser', username);
+                localStorage.setItem('displayName', users[username].displayName);
+                
+                // Add animation before redirect
+                document.querySelector('.login-card').style.animation = 'fadeOutScale 0.5s ease-out';
+                
+                setTimeout(() => {
+                    window.location.href = 'index.html';
+                }, 500);
+            } else {
+                errorMessage.textContent = 'ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง';
+                errorMessage.style.display = 'block';
+                
+                // Shake animation
+                document.querySelector('.login-card').style.animation = 'shake 0.5s';
+                setTimeout(() => {
+                    document.querySelector('.login-card').style.animation = '';
+                }, 500);
+            }
+        });
+        
+        // Clear error on input change
+        document.getElementById('username').addEventListener('change', () => {
+            document.getElementById('errorMessage').style.display = 'none';
+        });
+        
+        document.getElementById('password').addEventListener('input', () => {
+            document.getElementById('errorMessage').style.display = 'none';
+        });
+    </script>
+</body>
+</html>
