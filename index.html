@@ -175,18 +175,26 @@
         <div class="container">
             <div class="calendar-container">
                 <div class="section-header">
-                    <h2><i class="fas fa-calendar-alt"></i> ปฏิทินและวันตกไข่</h2>
+                    <h2><i class="fas fa-calendar-alt"></i> ปฏิทิน</h2>
+                    <button onclick="enablePeriodSelection()" class="save-period-btn" style="padding: 10px 20px;">
+                        <i class="fas fa-calendar-plus"></i> เลือกวันเมน
+                    </button>
                 </div>
                 
-                <!-- Period Input -->
-                <div class="period-input-box">
-                    <label>วันแรกของเมนล่าสุด:</label>
-                    <input type="date" id="lastPeriodDate" class="date-input">
-                    <label>ระยะเวลาของรอบเมน (วัน):</label>
-                    <input type="number" id="cycleLength" value="28" min="21" max="35" class="cycle-input">
-                    <button onclick="calculatePeriod()" class="calculate-btn">
-                        <i class="fas fa-calculator"></i> คำนวณและแสดงในปฏิทิน
-                    </button>
+                <!-- Period Mode Toggle -->
+                <div class="period-mode-box" style="display: none;">
+                    <div class="mode-info">
+                        <i class="fas fa-info-circle"></i>
+                        <span id="modeText">คลิกที่วันในปฏิทินเพื่อเลือกวันแรกของเมน</span>
+                    </div>
+                    <div style="display: flex; gap: 10px;">
+                        <button id="savePeriodBtn" class="save-period-btn" onclick="savePeriodDate()">
+                            <i class="fas fa-save"></i> บันทึกและคำนวณ
+                        </button>
+                        <button id="cancelPeriodBtn" class="cancel-period-btn" onclick="cancelPeriodSelection()">
+                            <i class="fas fa-times"></i> ยกเลิก
+                        </button>
+                    </div>
                 </div>
 
                 <!-- Calendar Legend -->
@@ -205,11 +213,15 @@
                     </div>
                     <div class="legend-item">
                         <span class="legend-color anniversary-day"></span>
-                        <span>วันครบรอบ (ทุกวันที่ 2)</span>
+                        <span>วันครบรอบ ทุกวันที่ 2</span>
                     </div>
                     <div class="legend-item">
                         <span class="legend-color has-note"></span>
                         <span>มีโน้ต</span>
+                    </div>
+                    <div class="legend-item">
+                        <span class="legend-color selected-period"></span>
+                        <span>วันที่เลือก</span>
                     </div>
                 </div>
 
@@ -243,6 +255,15 @@
             </div>
         </div>
     </section>
+
+    <!-- Loading Modal -->
+    <div id="loadingModal" class="modal">
+        <div class="modal-content loading-content">
+            <div class="spinner"></div>
+            <h3>กำลังคำนวณ...</h3>
+            <p>กรุณารอสักครู่</p>
+        </div>
+    </div>
 
     <!-- Day Note Modal -->
     <div id="dayNoteModal" class="modal">

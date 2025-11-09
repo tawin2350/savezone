@@ -151,11 +151,16 @@ function sendMessage() {
     const currentUser = localStorage.getItem('loggedInUser');
     const displayName = localStorage.getItem('displayName');
     
+    // Determine receiver
+    const receiver = currentUser === 'third' ? 'yimmy' : 'third';
+    
     const messageData = {
         text: message,
         sender: currentUser,
         senderName: displayName,
-        timestamp: Date.now()
+        timestamp: Date.now(),
+        read: false,
+        receiver: receiver
     };
     
     try {
@@ -178,6 +183,18 @@ function displayMessages(messages) {
     
     const currentUser = localStorage.getItem('loggedInUser');
     
+    // Mark received messages as read
+    Object.entries(messages).forEach(([id, msg]) => {
+        if (msg.receiver === currentUser && !msg.read) {
+            try {
+                const messageRef = window.dbRef(window.db, `chats/${id}`);
+                window.dbSet(messageRef, { ...msg, read: true });
+            } catch (error) {
+                console.error('Error marking message as read:', error);
+            }
+        }
+    });
+    
     Object.entries(messages)
         .sort((a, b) => a[1].timestamp - b[1].timestamp)
         .forEach(([id, msg]) => {
@@ -189,9 +206,17 @@ function displayMessages(messages) {
                 minute: '2-digit'
             });
             
+            // Add read status for sent messages
+            let readStatus = '';
+            if (msg.sender === currentUser) {
+                readStatus = msg.read 
+                    ? '<span style="color: #4facfe; margin-left: 5px;">✓✓</span>' 
+                    : '<span style="color: #94a3b8; margin-left: 5px;">✓</span>';
+            }
+            
             messageDiv.innerHTML = `
                 <div>${msg.text}</div>
-                <div class="message-info">${msg.senderName} • ${time}</div>
+                <div class="message-info">${msg.senderName} • ${time}${readStatus}</div>
             `;
             
             container.appendChild(messageDiv);
@@ -485,6 +510,8 @@ function deleteNote(id) {
 let currentCalendarMonth = new Date().getMonth();
 let currentCalendarYear = new Date().getFullYear();
 let periodData = null;
+let periodSelectionMode = false;
+let selectedPeriodDate = null;
 let selectedDate = null;
 let dayNotes = {};
 
@@ -494,31 +521,104 @@ function initCalendar() {
         return;
     }
     
-    // Load day notes
+    // Load period data from Firebase
     try {
+        const periodRef = window.dbRef(window.db, 'periodData');
+        window.dbOnValue(periodRef, (snapshot) => {
+            const data = snapshot.val();
+            if (data) {
+                // Convert timestamps back to Date objects
+                periodData = {
+                    lastPeriod: new Date(data.lastPeriod),
+                    periodEnd: new Date(data.periodEnd),
+                    ovulationDay: new Date(data.ovulationDay),
+                    fertileStart: new Date(data.fertileStart),
+                    fertileEnd: new Date(data.fertileEnd),
+                    nextPeriod: new Date(data.nextPeriod),
+                    cycleLength: data.cycleLength
+                };
+                
+                // Display results
+                const resultDiv = document.getElementById('periodResult');
+                if (resultDiv) {
+                    resultDiv.innerHTML = `
+                        <h3>📊 ผลการคำนวณ</h3>
+                        <p><strong>🌸 วันตกไข่:</strong> ${formatThaiDate(periodData.ovulationDay)}</p>
+                        <p><strong>💕 ช่วงมีโอกาสตั้งครรภ์สูง:</strong><br>
+                           ${formatThaiDate(periodData.fertileStart)} - ${formatThaiDate(periodData.fertileEnd)}</p>
+                        <p><strong>📅 เมนครั้งถัดไป (โดยประมาณ):</strong> ${formatThaiDate(periodData.nextPeriod)}</p>
+                        <p style="margin-top: 15px; font-size: 0.9rem; color: #666;">
+                        <em>* ข้อมูลจะแสดงในปฏิทินด้านล่าง</em>
+                        </p>
+                    `;
+                }
+            }
+            renderCalendar();
+        });
+        
+        // Load day notes
         const dayNotesRef = window.dbRef(window.db, 'dayNotes');
         window.dbOnValue(dayNotesRef, (snapshot) => {
             dayNotes = snapshot.val() || {};
             renderCalendar();
         });
     } catch (error) {
-        console.error('Error loading day notes:', error);
+        console.error('Error loading calendar data:', error);
     }
     
     renderCalendar();
 }
 
-function calculatePeriod() {
-    const lastPeriodInput = document.getElementById('lastPeriodDate');
-    const cycleLengthInput = document.getElementById('cycleLength');
+// Enable period selection mode
+function enablePeriodSelection() {
+    periodSelectionMode = true;
+    selectedPeriodDate = null;
     
-    if (!lastPeriodInput.value) {
-        alert('กรุณาเลือกวันแรกของเมน');
+    const modeBox = document.querySelector('.period-mode-box');
+    modeBox.style.display = 'flex';
+    
+    renderCalendar();
+}
+
+// Save selected period date
+function savePeriodDate() {
+    if (!selectedPeriodDate) {
+        alert('กรุณาเลือกวันที่ในปฏิทินก่อน');
         return;
     }
     
-    const lastPeriod = new Date(lastPeriodInput.value);
-    const cycleLength = parseInt(cycleLengthInput.value) || 28;
+    // Show loading modal
+    const loadingModal = document.getElementById('loadingModal');
+    loadingModal.classList.add('active');
+    
+    // Simulate calculation delay
+    setTimeout(() => {
+        calculatePeriodFromDate(selectedPeriodDate);
+        
+        // Hide loading modal
+        loadingModal.classList.remove('active');
+        
+        // Exit selection mode
+        periodSelectionMode = false;
+        selectedPeriodDate = null;
+        document.querySelector('.period-mode-box').style.display = 'none';
+        
+        renderCalendar();
+    }, 1500);
+}
+
+// Cancel period selection
+function cancelPeriodSelection() {
+    periodSelectionMode = false;
+    selectedPeriodDate = null;
+    document.querySelector('.period-mode-box').style.display = 'none';
+    renderCalendar();
+}
+
+// Calculate period from selected date
+function calculatePeriodFromDate(date) {
+    const lastPeriod = new Date(date);
+    const cycleLength = 28; // Default cycle length
     
     // Calculate ovulation (typically day 14 of cycle)
     const ovulationDay = new Date(lastPeriod);
@@ -549,6 +649,24 @@ function calculatePeriod() {
         cycleLength: cycleLength
     };
     
+    // Save to Firebase
+    try {
+        const periodRef = window.dbRef(window.db, 'periodData');
+        const dataToSave = {
+            lastPeriod: lastPeriod.getTime(),
+            periodEnd: periodEnd.getTime(),
+            ovulationDay: ovulationDay.getTime(),
+            fertileStart: fertileStart.getTime(),
+            fertileEnd: fertileEnd.getTime(),
+            nextPeriod: nextPeriod.getTime(),
+            cycleLength: cycleLength,
+            savedAt: Date.now()
+        };
+        window.dbSet(periodRef, dataToSave);
+    } catch (error) {
+        console.error('Error saving period data:', error);
+    }
+    
     const resultDiv = document.getElementById('periodResult');
     resultDiv.innerHTML = `
         <h3>📊 ผลการคำนวณ</h3>
@@ -560,8 +678,6 @@ function calculatePeriod() {
         <em>* ข้อมูลจะแสดงในปฏิทินด้านล่าง</em>
         </p>
     `;
-    
-    renderCalendar();
 }
 
 function renderCalendar() {
@@ -670,7 +786,25 @@ function createDayElement(day, month, year, isOtherMonth) {
     
     dayDiv.innerHTML = `<span class="day-number">${day}</span>`;
     
-    dayDiv.onclick = () => openDayNoteModal(year, month, day);
+    // Handle click based on mode
+    dayDiv.onclick = () => {
+        if (periodSelectionMode && !isOtherMonth) {
+            // Period selection mode
+            selectedPeriodDate = new Date(year, month, day);
+            renderCalendar();
+        } else {
+            // Normal mode - open day note
+            openDayNoteModal(year, month, day);
+        }
+    };
+    
+    // Highlight selected period date
+    if (periodSelectionMode && selectedPeriodDate) {
+        const selectedTime = new Date(year, month, day).getTime();
+        if (selectedTime === selectedPeriodDate.getTime()) {
+            dayDiv.classList.add('selected-period-date');
+        }
+    }
     
     return dayDiv;
 }
