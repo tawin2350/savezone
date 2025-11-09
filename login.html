@@ -51,26 +51,90 @@
         </div>
     </div>
 
+    <!-- Firebase SDKs -->
+    <script type="module">
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
+        import { getDatabase, ref, get, onValue } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js';
+        
+        // Firebase Configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyDAA6qrKzolYGc_fwjb37fqMq-ETpaxmiI",
+            authDomain: "savezone-bad79.firebaseapp.com",
+            databaseURL: "https://savezone-bad79-default-rtdb.asia-southeast1.firebasedatabase.app",
+            projectId: "savezone-bad79",
+            storageBucket: "savezone-bad79.firebasestorage.app",
+            messagingSenderId: "211601887525",
+            appId: "1:211601887525:web:8f3267173b4d3211e9cacc",
+            measurementId: "G-PJ31C5D5CR"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const database = getDatabase(app);
+        
+        window.db = database;
+        window.dbRef = ref;
+        window.dbGet = get;
+        window.dbOnValue = onValue;
+    </script>
+
     <script>
         const users = {
             third: { password: '1234', displayName: 'Third' },
             yimmy: { password: '1234', displayName: 'Yimmy' }
         };
 
+        let userPasswords = {};
+
+        // Load passwords from Firebase
+        async function loadPasswordsFromFirebase() {
+            try {
+                const passwordsRef = window.dbRef(window.db, 'userPasswords');
+                const snapshot = await window.dbGet(passwordsRef);
+                
+                if (snapshot.exists()) {
+                    userPasswords = snapshot.val();
+                    console.log('Passwords loaded from Firebase');
+                } else {
+                    // Initialize default passwords in Firebase
+                    userPasswords = {
+                        third: '1234',
+                        yimmy: '1234'
+                    };
+                }
+            } catch (error) {
+                console.error('Error loading passwords:', error);
+                // Fallback to default
+                userPasswords = {
+                    third: '1234',
+                    yimmy: '1234'
+                };
+            }
+        }
+
         // Check if already logged in
         if (localStorage.getItem('loggedInUser')) {
             window.location.href = 'index.html';
         }
 
-        document.getElementById('loginForm').addEventListener('submit', function(e) {
+        // Wait for Firebase to load
+        window.addEventListener('load', async () => {
+            await new Promise(resolve => setTimeout(resolve, 500));
+            await loadPasswordsFromFirebase();
+        });
+
+        document.getElementById('loginForm').addEventListener('submit', async function(e) {
             e.preventDefault();
             
             const username = document.getElementById('username').value;
             const password = document.getElementById('password').value;
             const errorMessage = document.getElementById('errorMessage');
             
-            // Get custom password from localStorage or use default
-            const userPasswords = JSON.parse(localStorage.getItem('userPasswords') || '{}');
+            // Make sure passwords are loaded
+            if (Object.keys(userPasswords).length === 0) {
+                await loadPasswordsFromFirebase();
+            }
+            
             const correctPassword = userPasswords[username] || users[username]?.password;
             
             if (users[username] && password === correctPassword) {

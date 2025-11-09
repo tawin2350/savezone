@@ -806,7 +806,7 @@ function formatThaiDate(date) {
 }
 
 // Settings - Change Password
-function changePassword() {
+async function changePassword() {
     const currentPassword = document.getElementById('currentPassword').value;
     const newPassword = document.getElementById('newPassword').value;
     const confirmPassword = document.getElementById('confirmPassword').value;
@@ -816,31 +816,56 @@ function changePassword() {
         return;
     }
     
+    if (!window.db) {
+        alert('กำลังเชื่อมต่อ Firebase... กรุณารอสักครู่');
+        return;
+    }
+    
     const currentUser = localStorage.getItem('loggedInUser');
-    const userPasswords = JSON.parse(localStorage.getItem('userPasswords') || '{}');
-    const storedPassword = userPasswords[currentUser] || '1234';
     
-    if (currentPassword !== storedPassword) {
-        alert('รหัสผ่านปัจจุบันไม่ถูกต้อง');
-        return;
+    try {
+        // Get current passwords from Firebase
+        const passwordsRef = window.dbRef(window.db, 'userPasswords');
+        const snapshot = await window.dbGet(passwordsRef);
+        
+        let userPasswords = {};
+        if (snapshot.exists()) {
+            userPasswords = snapshot.val();
+        } else {
+            userPasswords = {
+                third: '1234',
+                yimmy: '1234'
+            };
+        }
+        
+        const storedPassword = userPasswords[currentUser] || '1234';
+        
+        if (currentPassword !== storedPassword) {
+            alert('รหัสผ่านปัจจุบันไม่ถูกต้อง');
+            return;
+        }
+        
+        if (newPassword !== confirmPassword) {
+            alert('รหัสผ่านใหม่ไม่ตรงกัน');
+            return;
+        }
+        
+        if (newPassword.length < 4) {
+            alert('รหัสผ่านต้องมีอย่างน้อย 4 ตัวอักษร');
+            return;
+        }
+        
+        // Update password in Firebase
+        userPasswords[currentUser] = newPassword;
+        await window.dbSet(passwordsRef, userPasswords);
+        
+        alert('เปลี่ยนรหัสผ่านสำเร็จ! 🎉\n\nรหัสผ่านใหม่จะใช้งานได้ทั้งสองเครื่อง');
+        
+        document.getElementById('currentPassword').value = '';
+        document.getElementById('newPassword').value = '';
+        document.getElementById('confirmPassword').value = '';
+    } catch (error) {
+        console.error('Error changing password:', error);
+        alert('ไม่สามารถเปลี่ยนรหัสผ่านได้ กรุณาลองใหม่');
     }
-    
-    if (newPassword !== confirmPassword) {
-        alert('รหัสผ่านใหม่ไม่ตรงกัน');
-        return;
-    }
-    
-    if (newPassword.length < 4) {
-        alert('รหัสผ่านต้องมีอย่างน้อย 4 ตัวอักษร');
-        return;
-    }
-    
-    userPasswords[currentUser] = newPassword;
-    localStorage.setItem('userPasswords', JSON.stringify(userPasswords));
-    
-    alert('เปลี่ยนรหัสผ่านสำเร็จ! 🎉');
-    
-    document.getElementById('currentPassword').value = '';
-    document.getElementById('newPassword').value = '';
-    document.getElementById('confirmPassword').value = '';
 }
