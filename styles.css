@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600;700&family=Mitr:wght@300;400;500;600;700&display=swap');
+
 * {
     margin: 0;
     padding: 0;
@@ -5,21 +7,21 @@
 }
 
 :root {
-    --primary-color: #ff6b9d;
-    --secondary-color: #c44569;
-    --accent-color: #ffa07a;
-    --bg-gradient-1: #ffeaa7;
-    --bg-gradient-2: #fdcb6e;
-    --text-dark: #2d3436;
-    --text-light: #636e72;
+    --primary-color: #4facfe;
+    --secondary-color: #00c6ff;
+    --accent-color: #7dd3fc;
+    --bg-gradient-1: #dbeafe;
+    --bg-gradient-2: #bfdbfe;
+    --text-dark: #1e293b;
+    --text-light: #64748b;
     --white: #ffffff;
-    --shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-    --shadow-hover: 0 15px 40px rgba(0, 0, 0, 0.15);
+    --shadow: 0 10px 30px rgba(79, 172, 254, 0.15);
+    --shadow-hover: 0 15px 40px rgba(79, 172, 254, 0.25);
 }
 
 body {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    font-family: 'Mitr', 'Kanit', 'Segoe UI', sans-serif;
+    background: linear-gradient(135deg, #4facfe 0%, #00c6ff 100%);
     min-height: 100vh;
     color: var(--text-dark);
 }
@@ -102,6 +104,7 @@ body {
     background-clip: text;
     margin-bottom: 10px;
     font-weight: 700;
+    font-family: 'Mitr', sans-serif;
 }
 
 .login-subtitle {
@@ -168,12 +171,13 @@ body {
     align-items: center;
     justify-content: center;
     gap: 10px;
-    box-shadow: 0 5px 15px rgba(255, 107, 157, 0.3);
+    box-shadow: 0 5px 15px rgba(79, 172, 254, 0.4);
+    font-family: 'Mitr', sans-serif;
 }
 
 .login-btn:hover {
     transform: translateY(-2px);
-    box-shadow: 0 8px 20px rgba(255, 107, 157, 0.4);
+    box-shadow: 0 8px 20px rgba(79, 172, 254, 0.5);
 }
 
 .login-btn:active {
@@ -335,6 +339,7 @@ body {
     background-clip: text;
     margin-bottom: 40px;
     font-weight: 800;
+    font-family: 'Mitr', sans-serif;
 }
 
 .anniversary-info {
@@ -344,10 +349,10 @@ body {
 }
 
 .date-box, .counter-box, .monthly-anniversary {
-    background: linear-gradient(135deg, #ffeaa7, #fdcb6e);
+    background: linear-gradient(135deg, #dbeafe, #bfdbfe);
     padding: 30px;
     border-radius: 20px;
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 5px 15px rgba(79, 172, 254, 0.15);
 }
 
 .date-box i {
@@ -384,7 +389,7 @@ body {
     background: white;
     padding: 20px;
     border-radius: 15px;
-    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 3px 10px rgba(79, 172, 254, 0.1);
 }
 
 .time-value {
@@ -501,6 +506,7 @@ body {
 
 .send-btn:hover {
     transform: scale(1.1);
+    box-shadow: 0 5px 15px rgba(79, 172, 254, 0.3);
 }
 
 /* Feelings & Missing Section */
@@ -561,11 +567,12 @@ body {
     display: inline-flex;
     align-items: center;
     gap: 8px;
+    font-family: 'Mitr', sans-serif;
 }
 
 .save-btn:hover, .send-missing-btn:hover {
     transform: translateY(-2px);
-    box-shadow: 0 5px 15px rgba(255, 107, 157, 0.3);
+    box-shadow: 0 5px 15px rgba(79, 172, 254, 0.4);
 }
 
 .feelings-list, .missing-list {
@@ -629,11 +636,12 @@ body {
     display: inline-flex;
     align-items: center;
     gap: 8px;
+    font-family: 'Mitr', sans-serif;
 }
 
 .create-note-btn:hover {
     transform: translateY(-2px);
-    box-shadow: 0 5px 15px rgba(255, 107, 157, 0.3);
+    box-shadow: 0 5px 15px rgba(79, 172, 254, 0.4);
 }
 
 .notes-grid {
@@ -643,10 +651,10 @@ body {
 }
 
 .note-card {
-    background: linear-gradient(135deg, #ffeaa7, #fdcb6e);
+    background: linear-gradient(135deg, #dbeafe, #bfdbfe);
     padding: 20px;
     border-radius: 15px;
-    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 3px 10px rgba(79, 172, 254, 0.15);
     transition: all 0.3s ease;
     animation: slideIn 0.3s ease-out;
     cursor: pointer;
@@ -756,11 +764,12 @@ body {
     display: inline-flex;
     align-items: center;
     gap: 8px;
+    font-family: 'Mitr', sans-serif;
 }
 
 .calculate-btn:hover {
     transform: translateY(-2px);
-    box-shadow: 0 5px 15px rgba(255, 107, 157, 0.3);
+    box-shadow: 0 5px 15px rgba(79, 172, 254, 0.4);
 }
 
 /* Calendar Legend */
@@ -789,23 +798,23 @@ body {
 }
 
 .legend-color.period-day {
-    background: #ff6b9d;
+    background: #f472b6;
 }
 
 .legend-color.ovulation-day {
-    background: #6c5ce7;
+    background: #8b5cf6;
 }
 
 .legend-color.fertile-day {
-    background: #a29bfe;
+    background: #c4b5fd;
 }
 
 .legend-color.anniversary-day {
-    background: #feca57;
+    background: #fbbf24;
 }
 
 .legend-color.has-note {
-    border: 3px solid #00b894;
+    border: 3px solid #10b981;
     background: white;
 }
 
@@ -903,27 +912,27 @@ body {
 }
 
 .calendar-day.period-day {
-    background: linear-gradient(135deg, #ff6b9d, #ee5a6f);
+    background: linear-gradient(135deg, #f472b6, #ec4899);
     color: white;
-    border-color: #ff6b9d;
+    border-color: #f472b6;
 }
 
 .calendar-day.ovulation-day {
-    background: linear-gradient(135deg, #6c5ce7, #5f3dc4);
+    background: linear-gradient(135deg, #8b5cf6, #7c3aed);
     color: white;
-    border-color: #6c5ce7;
+    border-color: #8b5cf6;
 }
 
 .calendar-day.fertile-day {
-    background: linear-gradient(135deg, #a29bfe, #8b7ed8);
+    background: linear-gradient(135deg, #c4b5fd, #a78bfa);
     color: white;
-    border-color: #a29bfe;
+    border-color: #c4b5fd;
 }
 
 .calendar-day.anniversary-day {
-    background: linear-gradient(135deg, #feca57, #ffa502);
+    background: linear-gradient(135deg, #fbbf24, #f59e0b);
     color: white;
-    border-color: #feca57;
+    border-color: #fbbf24;
 }
 
 .calendar-day.has-note::after {
@@ -935,7 +944,7 @@ body {
 }
 
 .calendar-day.multiple-events {
-    background: linear-gradient(135deg, #ff6b9d 0%, #6c5ce7 50%, #feca57 100%);
+    background: linear-gradient(135deg, #f472b6 0%, #8b5cf6 50%, #fbbf24 100%);
     color: white;
 }
 
@@ -957,7 +966,7 @@ body {
 }
 
 .period-result {
-    background: linear-gradient(135deg, #ffeaa7, #fdcb6e);
+    background: linear-gradient(135deg, #dbeafe, #bfdbfe);
     padding: 25px;
     border-radius: 15px;
     line-height: 1.8;
@@ -1062,7 +1071,7 @@ body {
 }
 
 .day-note-delete {
-    background: #ff6b9d;
+    background: #ef4444;
     border: none;
     color: white;
     padding: 5px 10px;
@@ -1074,7 +1083,7 @@ body {
 }
 
 .day-note-delete:hover {
-    background: #c44569;
+    background: #dc2626;
 }
 
 #newDayNote {
@@ -1107,11 +1116,12 @@ body {
     display: inline-flex;
     align-items: center;
     gap: 8px;
+    font-family: 'Mitr', sans-serif;
 }
 
 .save-note-btn:hover {
     transform: translateY(-2px);
-    box-shadow: 0 5px 15px rgba(255, 107, 157, 0.3);
+    box-shadow: 0 5px 15px rgba(79, 172, 254, 0.4);
 }
 
 .period-result strong {
@@ -1171,11 +1181,12 @@ body {
     align-items: center;
     gap: 8px;
     align-self: flex-start;
+    font-family: 'Mitr', sans-serif;
 }
 
 .change-password-btn:hover {
     transform: translateY(-2px);
-    box-shadow: 0 5px 15px rgba(255, 107, 157, 0.3);
+    box-shadow: 0 5px 15px rgba(79, 172, 254, 0.4);
 }
 
 /* Animations */
