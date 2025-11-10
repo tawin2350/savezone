@@ -6,7 +6,39 @@ function checkAuth() {
         return false;
     }
     document.getElementById('currentUser').textContent = localStorage.getItem('displayName');
+    
+    // Check notification permission and show alert if denied
+    checkNotificationStatus();
+    
     return true;
+}
+
+// Check and show notification status
+function checkNotificationStatus() {
+    if ('Notification' in window) {
+        const alert = document.getElementById('notificationAlert');
+        if (alert) {
+            if (Notification.permission === 'denied' || Notification.permission === 'default') {
+                alert.style.display = 'flex';
+            } else {
+                alert.style.display = 'none';
+            }
+        }
+    }
+}
+
+// Request notification permission
+function requestNotificationPermission() {
+    if ('Notification' in window) {
+        Notification.requestPermission().then(permission => {
+            checkNotificationStatus();
+            if (permission === 'granted') {
+                alert('✅ เปิดการแจ้งเตือนเรียบร้อย!');
+            } else {
+                alert('❌ ไม่สามารถเปิดการแจ้งเตือนได้\n\nกรุณาไปเปิดใน Browser Settings:\n1. คลิก 🔒 ข้างซ้าย URL\n2. เปลี่ยน Notifications เป็น Allow\n3. Refresh หน้าเว็บ');
+            }
+        });
+    }
 }
 
 // Logout function
@@ -46,6 +78,20 @@ function initApp() {
                     section.classList.add('active');
                 }
             });
+            
+            // Clear unread badge when opening chat
+            if (targetSection === 'chat') {
+                // Load and display messages when opening chat
+                loadChatMessages();
+                updateUnreadCount();
+                // Scroll to bottom when opening chat
+                setTimeout(() => {
+                    const chatContainer = document.getElementById('chatMessages');
+                    if (chatContainer) {
+                        chatContainer.scrollTop = chatContainer.scrollHeight;
+                    }
+                }, 200);
+            }
         });
     });
     
@@ -118,6 +164,8 @@ function initAnniversary() {
 }
 
 // Chat System
+let lastMessageCount = 0;
+
 function initChat() {
     if (!window.db) {
         console.warn('Firebase not ready, retrying...');
@@ -129,11 +177,178 @@ function initChat() {
         const chatMessagesRef = window.dbRef(window.db, 'chats');
         window.dbOnValue(chatMessagesRef, (snapshot) => {
             const messages = snapshot.val();
-            displayMessages(messages);
+            
+            // Only display messages if chat is active, otherwise just update count
+            const chatSection = document.getElementById('chat');
+            const isChatActive = chatSection && chatSection.classList.contains('active');
+            
+            if (isChatActive) {
+                displayMessages(messages);
+            }
+            
+            checkNewMessages(messages);
+            updateUnreadCount();
         });
         console.log('Chat system initialized');
     } catch (error) {
         console.error('Error initializing chat:', error);
+    }
+}
+
+// Load chat messages when opening chat
+function loadChatMessages() {
+    if (!window.db) return;
+    
+    const chatMessagesRef = window.dbRef(window.db, 'chats');
+    window.dbGet(chatMessagesRef).then((snapshot) => {
+        const messages = snapshot.val();
+        displayMessages(messages);
+    }).catch(error => {
+        console.error('Error loading chat messages:', error);
+    });
+}
+
+// Check for new messages and show notification
+function checkNewMessages(messages) {
+    if (!messages) return;
+    
+    const currentUser = localStorage.getItem('loggedInUser');
+    const messageArray = Object.entries(messages);
+    
+    if (lastMessageCount === 0) {
+        lastMessageCount = messageArray.length;
+        return;
+    }
+    
+    if (messageArray.length > lastMessageCount) {
+        const newMessages = messageArray.slice(lastMessageCount);
+        newMessages.forEach(([id, msg]) => {
+            if (msg.receiver === currentUser && !msg.read) {
+                showNotification(msg);
+            }
+        });
+        lastMessageCount = messageArray.length;
+    }
+}
+
+// Show browser notification
+function showNotification(message) {
+    console.log('Trying to show notification:', message);
+    console.log('Notification permission:', Notification.permission);
+    
+    // Show in-app toast notification
+    showToast('💌 ' + message.senderName, message.text);
+    
+    // Also show browser notification if permitted
+    if ('Notification' in window) {
+        if (Notification.permission === 'granted') {
+            const notification = new Notification('💌 ข้อความใหม่จาก ' + message.senderName, {
+                body: message.text,
+                tag: 'chat-message',
+                requireInteraction: false
+            });
+            
+            notification.onclick = function() {
+                window.focus();
+                // Switch to chat section
+                document.querySelector('[data-section="chat"]').click();
+                notification.close();
+            };
+            
+            setTimeout(() => notification.close(), 5000);
+        } else if (Notification.permission === 'default') {
+            // Ask for permission
+            Notification.requestPermission().then(permission => {
+                if (permission === 'granted') {
+                    showNotification(message);
+                }
+            });
+        }
+    }
+}
+
+// Show toast notification in web
+function showToast(title, message) {
+    const container = document.getElementById('toastContainer');
+    if (!container) return;
+    
+    const toast = document.createElement('div');
+    toast.className = 'toast';
+    toast.innerHTML = `
+        <div class="toast-icon">💬</div>
+        <div class="toast-content">
+            <div class="toast-title">${title}</div>
+            <div class="toast-message">${message}</div>
+        </div>
+        <button class="toast-close" onclick="this.parentElement.remove()">×</button>
+    `;
+    
+    // Click to go to chat
+    toast.onclick = function(e) {
+        if (!e.target.classList.contains('toast-close')) {
+            document.querySelector('[data-section="chat"]').click();
+            toast.remove();
+        }
+    };
+    
+    container.appendChild(toast);
+    
+    // Auto remove after 5 seconds
+    setTimeout(() => {
+        toast.classList.add('removing');
+        setTimeout(() => toast.remove(), 300);
+    }, 5000);
+}
+
+// Update unread message count
+function updateUnreadCount() {
+    if (!window.db) return;
+    
+    const currentUser = localStorage.getItem('loggedInUser');
+    const chatMessagesRef = window.dbRef(window.db, 'chats');
+    
+    window.dbGet(chatMessagesRef).then((snapshot) => {
+        const messages = snapshot.val();
+        if (!messages) {
+            updateBadge(0);
+            return;
+        }
+        
+        const unreadCount = Object.values(messages).filter(msg => 
+            msg.receiver === currentUser && !msg.read
+        ).length;
+        
+        updateBadge(unreadCount);
+    }).catch(error => {
+        console.error('Error getting unread count:', error);
+    });
+}
+
+// Update badge UI
+function updateBadge(count, retryCount = 0) {
+    const chatBtn = document.querySelector('[data-section="chat"]');
+    
+    // Check if element exists, retry max 5 times
+    if (!chatBtn) {
+        if (retryCount < 5) {
+            setTimeout(() => updateBadge(count, retryCount + 1), 500);
+        }
+        return;
+    }
+    
+    let badge = chatBtn.querySelector('.unread-badge');
+    
+    if (count > 0) {
+        if (!badge) {
+            badge = document.createElement('span');
+            badge.className = 'unread-badge';
+            chatBtn.appendChild(badge);
+        }
+        badge.textContent = count > 99 ? '99+' : count;
+    } else {
+        if (badge) {
+            badge.remove();
+        }
     }
 }
 
@@ -182,18 +397,22 @@ function displayMessages(messages) {
     if (!messages) return;
     
     const currentUser = localStorage.getItem('loggedInUser');
+    const chatSection = document.getElementById('chat');
+    const isChatActive = chatSection && chatSection.classList.contains('active');
     
-    // Mark received messages as read
-    Object.entries(messages).forEach(([id, msg]) => {
-        if (msg.receiver === currentUser && !msg.read) {
-            try {
-                const messageRef = window.dbRef(window.db, `chats/${id}`);
-                window.dbSet(messageRef, { ...msg, read: true });
-            } catch (error) {
-                console.error('Error marking message as read:', error);
+    // Mark received messages as read only if chat is active
+    if (isChatActive) {
+        Object.entries(messages).forEach(([id, msg]) => {
+            if (msg.receiver === currentUser && !msg.read) {
+                try {
+                    const messageRef = window.dbRef(window.db, `chats/${id}`);
+                    window.dbSet(messageRef, { ...msg, read: true });
+                } catch (error) {
+                    console.error('Error marking message as read:', error);
+                }
             }
-        }
-    });
+        });
+    }
     
     Object.entries(messages)
         .sort((a, b) => a[1].timestamp - b[1].timestamp)
@@ -222,7 +441,10 @@ function displayMessages(messages) {
             container.appendChild(messageDiv);
         });
     
-    container.scrollTop = container.scrollHeight;
+    // Auto scroll to bottom with delay to ensure DOM is ready
+    setTimeout(() => {
+        container.scrollTop = container.scrollHeight;
+    }, 100);
 }
 
 // Feelings System

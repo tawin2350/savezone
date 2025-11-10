@@ -108,6 +108,11 @@
                 <div class="chat-header">
                     <h2><i class="fas fa-comments"></i> แชทคุยกัน</h2>
                 </div>
+                <div id="notificationAlert" class="notification-alert" style="display: none;">
+                    <i class="fas fa-bell-slash"></i>
+                    <span>การแจ้งเตือนถูกปิดอยู่</span>
+                    <button onclick="requestNotificationPermission()" class="enable-notif-btn">เปิดการแจ้งเตือน</button>
+                </div>
                 <div class="chat-messages" id="chatMessages"></div>
                 <div class="chat-input-container">
                     <input type="text" id="chatInput" placeholder="พิมพ์ข้อความ..." class="chat-input">
@@ -333,6 +338,9 @@
         window.dbRemove = remove;
         window.dbGet = get;
     </script>
+    
+    <!-- Toast Notification Container -->
+    <div id="toastContainer" class="toast-container"></div>
     
     <script src="app.js"></script>
 </body>
